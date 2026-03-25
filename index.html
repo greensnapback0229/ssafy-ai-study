@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 기초 이론 정리</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+:root{--bg:#0d1117;--sidebar-bg:#161b22;--surface:#21262d;--surface2:#30363d;--border:#30363d;--accent:#58a6ff;--accent2:#3fb950;--text:#e6edf3;--text-muted:#8b949e;--text-dim:#6e7681;--orange:#d29922;--sidebar-width:300px;--topbar-height:56px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden;}
+#sidebar{width:var(--sidebar-width);background:var(--sidebar-bg);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;flex-shrink:0;transition:transform .3s ease;z-index:100;}
+.sidebar-header{padding:20px 16px 16px;border-bottom:1px solid var(--border);}
+.sidebar-header h1{font-size:14px;font-weight:700;color:var(--accent);letter-spacing:.5px;text-transform:uppercase;}
+.sidebar-header p{font-size:11px;color:var(--text-muted);margin-top:4px;}
+.sidebar-nav{flex:1;overflow-y:auto;padding:8px 0;}
+.nav-item{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;cursor:pointer;border-left:3px solid transparent;transition:all .2s;}
+.nav-item:hover{background:var(--surface);}
+.nav-item.active{background:rgba(88,166,255,.08);border-left-color:var(--accent);}
+.nav-badge{width:28px;height:28px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text-muted);flex-shrink:0;margin-top:2px;transition:all .2s;}
+.nav-item.active .nav-badge{background:var(--accent);color:#fff;}
+.nav-text{flex:1;}
+.nav-title{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;}
+.nav-short{font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.4;}
+.nav-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;margin-top:10px;transition:background .2s;}
+.nav-item.active .nav-dot{background:var(--accent);}
+.nav-item.visited .nav-dot{background:var(--accent2);}
+.progress-bar{padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.progress-bar span{font-size:11px;color:var(--text-muted);}
+.progress-dots{display:flex;gap:4px;flex:1;}
+.pdot{flex:1;height:4px;border-radius:2px;background:var(--surface2);transition:background .3s;}
+.pdot.done{background:var(--accent2);}
+.pdot.current{background:var(--accent);}
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+#topbar{height:var(--topbar-height);background:var(--sidebar-bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;}
+#hamburger{display:none;background:none;border:none;color:var(--text);cursor:pointer;padding:4px;border-radius:6px;font-size:20px;}
+#topbar-title{font-size:15px;font-weight:600;color:var(--text);}
+#topbar-subtitle{font-size:12px;color:var(--text-muted);}
+.nav-btn{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500;transition:all .2s;}
+.nav-btn:hover{background:var(--surface2);border-color:var(--accent);color:var(--accent);}
+.nav-btn:disabled{opacity:.3;cursor:not-allowed;}
+.nav-btn:disabled:hover{background:var(--surface);border-color:var(--border);color:var(--text);}
+#content{flex:1;overflow-y:auto;padding:32px 40px;max-width:900px;margin:0 auto;width:100%;}
+.section{display:none;}
+.section.active{display:block;}
+#content h1{font-size:28px;font-weight:700;color:var(--text);border-bottom:2px solid var(--accent);padding-bottom:12px;margin-bottom:24px;}
+#content h2{font-size:20px;font-weight:700;color:var(--accent);margin:36px 0 14px;padding-left:10px;border-left:3px solid var(--accent);}
+#content h3{font-size:16px;font-weight:600;color:var(--accent2);margin:24px 0 10px;}
+#content h4{font-size:14px;font-weight:600;color:var(--orange);margin:18px 0 8px;}
+#content p{line-height:1.8;margin-bottom:14px;}
+#content ul,#content ol{padding-left:24px;margin-bottom:14px;}
+#content li{line-height:1.8;margin-bottom:4px;}
+#content strong{color:var(--accent);font-weight:600;}
+#content em{color:var(--text-muted);font-style:italic;}
+#content hr{border:none;border-top:1px solid var(--border);margin:32px 0;}
+#content blockquote{border-left:4px solid var(--accent);background:rgba(88,166,255,.06);padding:12px 16px;margin:16px 0;border-radius:0 6px 6px 0;font-size:14px;line-height:1.7;}
+#content blockquote p{margin-bottom:6px;color:var(--text-muted);}
+#content blockquote p:last-child{margin-bottom:0;}
+#content code{background:var(--surface);color:#e6c07b;padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono','Fira Code',monospace;font-size:13px;}
+#content pre{background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:16px;overflow-x:auto;margin:14px 0;}
+#content pre code{background:none;color:#c9d1d9;padding:0;font-size:13px;line-height:1.6;}
+#content table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13.5px;overflow:hidden;border:1px solid var(--border);}
+#content th{background:var(--accent);color:#fff;padding:10px 14px;text-align:left;font-weight:600;font-size:13px;}
+#content td{padding:9px 14px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.6;}
+#content tr:last-child td{border-bottom:none;}
+#content tr:nth-child(even) td{background:rgba(255,255,255,.02);}
+#content tr:hover td{background:rgba(88,166,255,.04);}
+.mermaid{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;margin:16px 0;text-align:center;overflow-x:auto;}
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;}
+@media(max-width:768px){
+  #sidebar{position:fixed;top:0;left:0;height:100vh;transform:translateX(-100%);}
+  #sidebar.open{transform:translateX(0);}
+  #hamburger{display:flex;}
+  #content{padding:20px 16px;}
+  #topbar{padding:0 12px;}
+}
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--surface2);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--text-dim);}
+</style>
+</head>
+<body>
+<div id="overlay" onclick="closeSidebar()"></div>
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <h1>AI 기초 이론 정리</h1>
+    <p>6차시 완성 커리큘럼</p>
+  </div>
+  <div class="sidebar-nav" id="sidebarNav"></div>
+  <div class="progress-bar">
+    <span id="progressLabel">1/6</span>
+    <div class="progress-dots" id="progressDots"></div>
+  </div>
+</nav>
+<div id="main">
+  <div id="topbar">
+    <button id="hamburger" onclick="toggleSidebar()">&#9776;</button>
+    <div style="flex:1">
+      <div id="topbar-title"></div>
+      <div id="topbar-subtitle"></div>
+    </div>
+    <button class="nav-btn" id="prevBtn" onclick="navigate(-1)">&#8592; 이전</button>
+    <button class="nav-btn" id="nextBtn" onclick="navigate(1)">다음 &#8594;</button>
+  </div>
+  <div id="content"></div>
+</div>
+<script>
+const RAW=[`# 1차시 - AI & 기계학습 기초
+
+## 1. AI, ML, DL의 정의
+
+| 구분 | 정의 | 관계 |
+|------|------|------|
+| **AI (인공지능)** | 인간의 지능을 모방하는 기술의 총칭. 규칙 기반 시스템도 포함 | 가장 넓은 개념 |
+| **ML (기계학습)** | 명시적 프로그래밍 없이 데이터로부터 패턴을 학습하는 AI의 하위 분야 | AI ⊃ ML |
+| **DL (딥러닝)** | 다층 신경망(심층 신경망)을 사용하는 ML의 하위 분야. 특징을 자동으로 추출 | ML ⊃ DL |
+
+> AI → ML → DL (포함 관계)
+
+### 왜 이 구분이 중요한가?
+
+- 전통 AI: 사람이 규칙을 직접 만듦 (if-else). 복잡한 문제에 한계
+- ML: 데이터에서 규칙을 스스로 학습. 하지만 사람이 **어떤 특징(Feature)을 쓸지** 직접 설계해야 함
+- DL: 특징 추출까지 자동으로 학습. 이미지, 텍스트 등 비정형 데이터에 강력
+
+### 연결 포인트
+
+> ML의 핵심 질문은 "데이터에서 어떻게 패턴을 찾을 것인가?"이고, 이 질문에 대한 답 중 하나가 **신경망(DL)**이다. 1차시에서 배우는 회귀, 분류, 클러스터링은 모두 ML의 대표적 **문제 유형**이며, 2차시의 신경망은 이 문제들을 풀기 위한 **모델 구조** 중 하나다.
+
+---
+
+## 2. 데이터 구성 요소 (지도학습)
+
+| 용어 | 설명 | 표기 | 예시 |
+|------|------|------|------|
+| **특성 (Feature)** | 예측에 사용되는 설명 변수 | X | 집 크기, 방 수, 위치 |
+| **라벨 (Label)** | 맞춰야 하는 정답 (실제값) | y | 집 가격 |
+| **예측값** | 모델이 출력한 추정값 | ŷ | 모델이 예측한 가격 |
+| **데이터셋** | (Feature, Label) 쌍의 모음 | D | 훈련/검증/테스트 셋으로 분할 |
+
+### 학습 유형
+
+| 유형 | Label 유무 | 목표 | 대표 알고리즘 |
+|------|-----------|------|-------------|
+| **지도학습** | O | 입력→정답 매핑 학습 | 회귀, 분류, 신경망 |
+| **비지도학습** | X | 데이터 내부 구조/패턴 발견 | 클러스터링, 차원 축소 |
+| **강화학습** | X (보상 있음) | 보상을 최대화하는 행동 학습 | Q-Learning, PPO |
+
+### 데이터 분할의 중요성
+
+| 구분 | 역할 | 비율 (일반적) |
+|------|------|-------------|
+| **훈련 세트 (Train)** | 모델 학습에 사용 | 60~80% |
+| **검증 세트 (Validation)** | 하이퍼파라미터 튜닝, 모델 선택 | 10~20% |
+| **테스트 세트 (Test)** | 최종 성능 평가 (한 번만 사용) | 10~20% |
+
+> 훈련 데이터로 성능을 측정하면 **과적합**된 모델도 잘해 보이므로, 반드시 학습에 사용하지 않은 데이터로 평가해야 한다.
+
+---
+
+## 3. 회귀 (Regression)
+
+입력 변수(X)와 출력 변수(Y) 사이의 관계를 함수로 근사하여 **연속적인 값**을 예측하는 방법
+
+- **분류와의 차이**: 회귀는 연속값(가격, 온도), 분류는 범주(고양이/개, 스팸/정상)를 예측
+
+### 회귀 오류 측정 - 평균제곱오차 (MSE)
+
+\`\`\`
+MSE = (1/n) × Σ(yᵢ - ŷᵢ)²
+\`\`\`
+
+- 값이 작을수록 예측이 정확함
+- **왜 제곱하는가?**: ①양수/음수 오차가 상쇄되는 것을 방지 ②큰 오차에 더 큰 페널티
+
+### MSE와 다른 지표들
+
+| 지표 | 수식 | 특징 |
+|------|------|------|
+| **MSE** | (1/n)Σ(y-ŷ)² | 가장 기본. 제곱 단위 |
+| **RMSE** | √MSE | 원래 단위로 해석 가능 |
+| **MAE** | (1/n)Σ|y-ŷ| | 이상치에 덜 민감 |
+| **R²** | 1 - RSS/TSS | 설명력 비율 (0~1) |
+
+---
+
+## 4. 결정계수 R² (회귀 설명력)
+
+**핵심 정의**: Label(y)의 분산 중에서 Feature(X)로 설명되는 비율
+
+\`\`\`
+R² = 1 - (RSS / TSS)
+
+RSS = Σ(yᵢ - ŷᵢ)²    ← 잔차제곱합: 모델이 설명하지 못한 변동
+TSS = Σ(yᵢ - ȳ)²     ← 총제곱합: 데이터의 총 변동
+\`\`\`
+
+### R²의 직관적 이해
+
+| R² 값 | 의미 |
+|--------|------|
+| **R² = 1** | 모델이 데이터를 완벽하게 설명 |
+| **R² = 0.8** | 변동의 80%를 모델이 설명 |
+| **R² = 0** | 모델이 평균 예측과 동일한 수준 |
+| **R² < 0** | 평균보다도 못한 예측 |
+
+> RSS 최소화 = R² 최대화 = 좋은 회귀 모델
+
+---
+
+## 5. 혼동행렬 (Confusion Matrix)
+
+분류 모델의 예측 결과를 실제값과 비교해 정리한 2×2 표
+
+|  | 예측: Positive | 예측: Negative |
+|--|---------------|---------------|
+| **실제: Positive** | TP (True Positive) 정탐 | FN (False Negative) 미탐 |
+| **실제: Negative** | FP (False Positive) 오탐 | TN (True Negative) 정탐 |
+
+### 주요 성능 지표
+
+| 지표 | 수식 | 중요한 상황 |
+|------|------|-----------|
+| **정확도 (Accuracy)** | (TP+TN) / 전체 | 클래스 균형일 때 |
+| **정밀도 (Precision)** | TP / (TP+FP) | 오탐을 줄여야 할 때 (스팸 필터) |
+| **재현율 (Recall)** | TP / (TP+FN) | 미탐을 줄여야 할 때 (암 진단) |
+| **F1 Score** | 2×(P×R)/(P+R) | 둘 다 중요할 때 |
+
+### 정확도의 함정
+
+> 불균형 데이터 (양성 1%, 음성 99%)에서는 전부 음성이라고 해도 정확도가 99%로 보임
+> → 실제로는 양성을 하나도 못 잡는 무용한 모델
+> → 그래서 Precision, Recall, F1 Score를 **함께** 봐야 함
+
+---
+
+## 6. 오버피팅 & 언더피팅
+
+| 구분 | 훈련 성능 | 테스트 성능 | 원인 |
+|------|----------|-----------|------|
+| **오버피팅** | 높음 | 낮음 | 모델 너무 복잡, 데이터 부족 |
+| **언더피팅** | 낮음 | 낮음 | 모델 너무 단순, 학습 부족 |
+| **적절한 학습** | 높음 | 높음 | 모델 복잡도와 데이터가 적절 |
+
+### 해결 방법들
+
+| 방법 | 설명 |
+|------|------|
+| **k겹 교차 검증** | 데이터를 k개로 나눠 k번 반복 학습/검증 |
+| **정규화 (Regularization)** | 모델 복잡도에 페널티 부여 |
+| **드롭아웃 (Dropout)** | 신경망에서 일부 노드를 랜덤하게 꺼서 학습 |
+| **조기 종료 (Early Stopping)** | 검증 성능이 나빠지기 시작하면 학습 중단 |
+| **데이터 증강** | 데이터를 변형/추가하여 양 늘리기 |
+
+### k겹 교차 검증 (k-Fold Cross Validation)
+
+\`\`\`
+데이터를 5등분 (k=5): [1][2][3][4][5]
+
+1회차: [1]=검증, [2][3][4][5]=훈련
+2회차: [2]=검증, [1][3][4][5]=훈련
+...
+→ 5번의 성능을 평균내어 최종 평가
+\`\`\`
+
+---
+
+## 7. 클러스터링 (비지도학습)
+
+클러스터: 같은 도메인의 데이터를 군집화한 것. **집단 내부는 유사, 집단 간에는 상이**
+
+### k-means 알고리즘
+
+1. **초기화**: 관측치들에 무작위로 1~K 클러스터를 임시 부여
+2. **반복**: 각 클러스터의 **중심(평균)** 계산 → 관측치를 **가장 가까운 중심**에 재할당
+3. **수렴**: 중심점과의 평균 거리가 줄어 안정화
+
+### k-means vs 계층적 군집 비교
+
+| k-means | 계층적 군집 |
+|---------|-----------|
+| K를 사전에 지정 | K 지정 불필요 |
+| 빠름 (대규모 데이터에 적합) | 느림 (소규모에 적합) |
+| 구형(spherical) 클러스터에 적합 | 다양한 형태 가능 |
+| 결과가 초기값에 의존 | 결정적 결과 |
+
+---
+
+## 차시 연결 요약
+
+> 1차시는 ML의 **큰 그림**을 잡는 단계다.
+> - 회귀/분류의 개념과 평가 지표(MSE, R², 혼동행렬)는 2차시의 **선형회귀, 로지스틱 회귀**를 이해하는 기초가 된다.
+> - 오버피팅/데이터 분할 개념은 이후 모든 차시에서 반복적으로 등장한다.
+> - 비지도학습(클러스터링)은 지도학습과 대비되는 개념으로, 라벨 없는 데이터 활용법을 보여준다.`,
+
+`# 2차시 - 회귀, 분류, 신경망
+
+> 1차시에서 회귀/분류의 **개념과 평가 지표**를 배웠다면, 2차시는 이를 실제로 풀기 위한 **모델과 학습 방법**을 다룬다. 선형회귀 → 로지스틱 회귀 → 신경망으로 점점 복잡한 모델을 배우며, 이 모델들을 학습시키는 공통 원리인 **손실함수 + 경사하강법**이 핵심이다.
+
+## 1. 선형회귀
+
+입력 변수와 출력 변수 사이의 관계를 **직선 형태**로 근사해서 예측하는 방법.
+
+### 단순선형회귀
+
+\`\`\`
+Y = b₀ + b₁X + e
+
+b₀ = 절편 (X가 0일 때 Y의 평균 추정값)
+b₁ = 기울기 (X가 1 증가할 때 Y의 평균 변화량)
+e  = 관측 오차 (잔차)
+\`\`\`
+
+**예시**: Y = 5000 + 200 × 30 = 11,000만원 (30㎡ 집의 예상 가격)
+
+### 다중선형회귀
+
+\`\`\`
+Y = b₀ + b₁X₁ + b₂X₂ + ... + bₚXₚ + e
+\`\`\`
+
+### 주의사항
+
+- **상관 ≠ 인과**: 아이스크림 판매↑와 익사 사고↑는 상관 있지만 원인은 "여름 기온"
+- **다중공선성**: 변수들이 서로 강하게 연관되어 있으면 계수 추정이 불안정
+
+---
+
+## 2. RSS (잔차제곱합)와 최소제곱법
+
+### RSS 정의
+
+\`\`\`
+RSS = Σ(yᵢ - ŷᵢ)²
+\`\`\`
+
+- **잔차(Residual)** = 실제 관측값(yᵢ) - 예측값(ŷᵢ)
+- RSS가 작을수록 모델이 데이터를 잘 설명함
+
+### RSS와 1차시 개념의 연결
+
+| 1차시 | 2차시 | 관계 |
+|-------|-------|------|
+| MSE | RSS | MSE = RSS / n |
+| R² = 1 - RSS/TSS | RSS 최소화 | RSS를 줄이면 R²가 올라감 |
+
+### 최소제곱법 (OLS)
+
+\`\`\`
+최적 기울기: b₁ = Σ(xᵢ - x̄)(yᵢ - ȳ) / Σ(xᵢ - x̄)²
+최적 절편:   b₀ = ȳ - b₁x̄
+\`\`\`
+
+> 핵심: "잔차제곱합을 최소화하여 최적의 직선을 찾는다"
+
+---
+
+## 3. 로지스틱 회귀 (Logistic Regression)
+
+> 1차시에서 배운 **분류 문제**를 풀기 위한 모델. 이름에 "회귀"가 있지만 실제로는 **분류 모델**이다.
+
+### 시그모이드 함수
+
+\`\`\`
+σ(z) = 1 / (1 + e⁻ᶻ)
+\`\`\`
+
+- z가 매우 크면 → 1에 가까움 / z가 매우 작으면 → 0에 가까움 / z = 0이면 → 0.5
+
+### 로지스틱 회귀 모형
+
+\`\`\`
+P(Y=1|X) = σ(b₀ + b₁X) = 1 / (1 + e^-(b₀ + b₁X))
+\`\`\`
+
+출력이 0.5 이상이면 양성(Positive), 0.5 미만이면 음성(Negative)으로 분류
+
+### 우도 (Likelihood)와 학습
+
+| 선형회귀 | 로지스틱 회귀 |
+|----------|-------------|
+| MSE(RSS)를 **최소화** | 우도(Likelihood)를 **최대화** |
+| 닫힌 해(closed-form) 존재 | 경사하강법으로 반복 최적화 필요 |
+
+> 로지스틱 회귀의 우도 최대화 = Cross-Entropy 최소화 (같은 것!)
+
+---
+
+## 4. 손실함수 (Loss Function)
+
+> 모든 ML 모델 학습의 공통 구조: **손실함수 정의 → 손실을 최소화하는 파라미터 탐색**
+
+### 주요 손실함수
+
+| 손실함수 | 수식 | 사용처 |
+|---------|------|--------|
+| **MSE** | (1/n) Σ(yᵢ - ŷᵢ)² | 회귀 문제 |
+| **Cross-Entropy** | -Σ[y·log(ŷ) + (1-y)·log(1-ŷ)] | 분류 문제 |
+
+---
+
+## 5. 경사하강법 (Gradient Descent)
+
+### 수식
+
+\`\`\`
+w = w - η × (dL/dw)
+
+w     : 현재 가중치
+η     : 학습률 (learning rate)
+dL/dw : 손실함수의 기울기 (gradient)
+\`\`\`
+
+### 학습률 η의 중요성
+
+| η가 너무 크면 | η가 너무 작으면 | η가 적절하면 |
+|-------------|-------------|------------|
+| 최적점을 지나쳐 발산 | 수렴이 매우 느림 | 적절한 속도로 수렴 |
+
+### 경사하강법의 변형
+
+| 변형 | 설명 |
+|------|------|
+| **배치 GD** | 전체 데이터로 기울기 계산. 정확하지만 느림 |
+| **확률적 GD (SGD)** | 데이터 1개씩 기울기 계산. 빠르지만 불안정 |
+| **미니배치 GD** | 소규모 배치로 계산. **실전에서 가장 많이 사용** |
+
+---
+
+## 6. 신경망 (Neural Network)
+
+### 한 층의 연산
+
+\`\`\`
+y = σ(Wx + b)
+
+W : 가중치 행렬   x : 입력 벡터
+b : 편향 (bias)   σ : 활성함수 (비선형성 부여)
+\`\`\`
+
+### 활성함수 (Activation Function)
+
+| 활성함수 | 수식 | 출력 범위 | 특징 |
+|---------|------|----------|------|
+| **ReLU** | max(0, x) | 0 ~ ∞ | **딥러닝 기본값**. 계산 빠름 |
+| **Sigmoid** | 1/(1+e⁻ˣ) | 0 ~ 1 | 확률 해석 가능. gradient vanishing |
+| **Tanh** | tanh(x) | -1 ~ 1 | Sigmoid보다 개선, vanishing 여전히 있음 |
+
+### 왜 활성함수가 필수인가?
+
+\`\`\`
+활성함수 없이 2층을 쌓으면:
+y = W₂(W₁x + b₁) + b₂ = W'x + b'  → 하나의 선형 변환과 동일!
+→ 활성함수가 비선형성을 넣어야 층을 쌓을수록 복잡한 패턴 학습 가능
+\`\`\`
+
+### 딥러닝의 학습 과정
+
+\`\`\`
+1. 순전파 (Forward Pass): 입력 → 각 층 통과 → 예측값 출력
+2. 손실 계산: 예측값과 실제값의 차이
+3. 역전파 (Backpropagation): 기울기를 출력층→입력층 방향으로 계산
+4. 파라미터 업데이트: 경사하강법으로 가중치 갱신
+5. 반복
+\`\`\`
+
+### Shallow vs Deep
+
+| Shallow (얕은) | Deep (깊은) |
+|---------|------|
+| 은닉층 1개 | 은닉층 여러 개 (2개 이상) |
+| 복잡한 표현을 위해 **넓이**를 키워야 함 | **깊게 쌓아서** 복잡한 표현 학습 |
+| 파라미터 수 폭증 | 같은 파라미터로 더 효율적으로 학습 |
+
+---
+
+## 차시 연결 요약
+
+> 2차시의 모델들은 **복잡도 순서**로 연결된다:
+> - **선형회귀** (가장 단순) → 연속값 예측, RSS 최소화
+> - **로지스틱 회귀** (선형+시그모이드) → 분류 문제, 우도 최대화
+> - **신경망** (비선형 층 쌓기) → 복잡한 패턴 학습, 경사하강법으로 최적화
+>
+> 이 모든 모델의 학습은 "**손실함수 → 경사하강법**"이라는 공통 프레임워크를 따른다.`,
+
+`# 3차시 - 자연어 처리 기본
+
+> 2차시에서 배운 신경망을 **텍스트(순차 데이터)**에 적용하는 방법을 다룬다. 텍스트를 숫자로 바꾸는 방법(임베딩)부터, 순차 데이터를 처리하는 RNN/LSTM, 그리고 Transformer와 BERT까지 다룬다.
+
+## 1. 텍스트 표현
+
+### 원핫 인코딩 (One-Hot Encoding)
+
+\`\`\`
+예: 사전 = [나, 너, 사랑, 하다, 좋다]
+
+"사랑" = [0, 0, 1, 0, 0]
+"좋다" = [0, 0, 0, 0, 1]
+\`\`\`
+
+**단점**: 차원의 저주 + 의미적 정보 부족 ("사랑"과 "좋다"의 유사도 = 0)
+
+### 워드 임베딩 (Word Embedding)
+
+단어를 **저차원의 밀집(dense) 벡터**로 표현하여 의미적 관계를 포착
+
+- 비슷한 의미의 단어는 벡터 공간에서 **가까이** 위치
+- 유명한 예: "King" - "Man" + "Woman" ≈ "Queen" (의미 연산 가능)
+
+#### Word2Vec의 두 가지 방법
+
+| 방식 | 학습 방향 | 특징 |
+|------|----------|------|
+| **Skip-Gram (SG)** | 중심 단어 → 주변 단어 예측 | 희귀 단어 표현 잘 학습 |
+| **CBOW** | 주변 단어 → 중심 단어 예측 | 학습 속도 빠름 |
+
+---
+
+## 2. RNN (Recurrent Neural Network) 원리 이해
+
+### RNN 구조와 원리
+
+\`\`\`
+hₜ = f(W_h · hₜ₋₁ + W_x · xₜ + b)
+
+W_h : hidden state에 곱하는 가중치
+W_x : 입력에 곱하는 가중치
+f   : 활성함수 (보통 tanh)
+\`\`\`
+
+- **Hidden state (hₜ)**: 이전 시점까지의 정보를 요약한 벡터
+- 같은 가중치(W_h, W_x)를 **모든 시점에서 공유**
+
+### 기울기 소실 문제 (Vanishing Gradient)
+
+- **원인**: 역전파에서 기울기가 여러 시점을 거치며 반복 곱셈 → 1보다 작은 값이 계속 곱해지면 0에 수렴
+- **결과**: 장기 의존성 학습 실패
+
+---
+
+## 3. LSTM (Long Short-Term Memory) 원리 이해
+
+### 두 가지 상태
+
+| 상태 | 역할 | 비유 |
+|------|------|------|
+| **Cell State (Cₜ)** | **장기 기억** 저장소. 컨베이어 벨트처럼 정보가 흐름 | 노트에 적어둔 메모 |
+| **Hidden State (hₜ)** | **단기 기억** / 현재 출력 | 지금 머릿속에 떠올린 것 |
+
+### 3개의 게이트 (모두 시그모이드 사용 → 0~1 출력)
+
+| 게이트 | 역할 | 동작 |
+|--------|------|------|
+| **Forget Gate (fₜ)** | 이전 기억 중 **버릴 것** 결정 | 0→삭제, 1→유지 |
+| **Input Gate (iₜ)** | 새 정보 중 **저장할 것** 결정 | 0→무시, 1→저장 |
+| **Output Gate (oₜ)** | Cell에서 **출력할 것** 결정 | 0→차단, 1→출력 |
+
+### LSTM 동작 흐름 (4단계)
+
+\`\`\`
+1. Forget: Cₜ₋₁ × fₜ
+2. Input:  C̃ₜ = tanh(W_c·[hₜ₋₁, xₜ] + b_c),  저장량: iₜ × C̃ₜ
+3. Update: Cₜ = fₜ × Cₜ₋₁ + iₜ × C̃ₜ
+4. Output: hₜ = oₜ × tanh(Cₜ)
+\`\`\`
+
+- Cell State 업데이트가 **덧셈** 기반 → 기울기가 비교적 잘 보존됨 (기울기 소실 해결)
+
+---
+
+## 4. NLP 성능평가
+
+### Perplexity (혼란도)
+
+- **값이 낮을수록** 모델이 다음 단어를 잘 예측함
+- 직관: "모델이 다음 단어를 예측할 때 평균적으로 **몇 개의 후보 중에서 고민하는가**"
+
+### BLEU / ROUGE Score
+
+| 지표 | 관점 | 주 사용처 |
+|------|------|----------|
+| BLEU | 정밀도 (생성 문장 기준) | 번역 |
+| ROUGE | 재현율 (참조 문장 기준) | 요약 |
+
+---
+
+## 5. Seq2Seq, Attention, 디코딩
+
+### Seq2Seq
+
+\`\`\`
+입력: "I love you"
+→ Encoder가 전체 의미를 벡터 하나로 압축
+→ Decoder가 "나는", "너를", "사랑해"를 순차적으로 생성
+\`\`\`
+
+**한계**: 긴 문장일수록 하나의 벡터에 정보를 다 담기 어려움 → 정보 손실
+
+### Attention 메커니즘
+
+디코딩할 때 **필요한 부분만 골라 보는 방법**
+
+\`\`\`
+"나는" 생성 시 → "I"에 높은 attention weight
+"너를" 생성 시 → "you"에 높은 attention weight
+"사랑해" 생성 시 → "love"에 높은 attention weight
+\`\`\`
+
+---
+
+## 6. Transformer 원리 이해
+
+### RNN의 한계 → Transformer의 해결
+
+| RNN의 한계 | Transformer의 해결 |
+|------------|-------------------|
+| **장기 의존성** 학습 어려움 | Self-Attention으로 **모든 단어를 직접 참조** |
+| **병렬화 불가**: 순차 처리 필수 | 전체 문장을 **한 번에 병렬 처리** |
+| **기울기 소실** | Attention에는 곱셈 연쇄가 없어 기울기 잘 전달 |
+
+### Q, K, V 개념
+
+| 벡터 | 의미 | 비유 |
+|------|------|------|
+| **Q (Query)** | "내가 무엇을 찾는지" | 도서관에서 검색하는 질문 |
+| **K (Key)** | "내가 어떤 정보를 가졌는지" | 각 책의 제목/키워드 |
+| **V (Value)** | "실제 전달할 정보" | 책의 내용 |
+
+\`\`\`
+1. 유사도 계산: score = Q · Kᵀ
+2. 스케일링: score / √d_k
+3. 정규화: softmax(score) → attention weights
+4. 가중합: weights × V → 문맥 반영된 새로운 표현
+\`\`\`
+
+### Self-Attention의 3가지 한계와 해결
+
+| 한계 | 해결 방법 |
+|------|----------|
+| **순서 정보 부재** | **Positional Encoding** |
+| **비선형성 부족** | **Feed-Forward Network** |
+| **미래 참조 문제** | **Masked Self-Attention** |
+
+### Transformer 전체 구조
+
+| Encoder (입력 처리) | Decoder (출력 생성) |
+|---------|---------|
+| Self-Attention + FFN | **Masked** Self-Attention |
+| 입력 전체를 양방향으로 봄 | 현재까지 생성된 것만 봄 |
+|  | + Encoder-Decoder Attention + FFN |
+
+- 각 층마다 **Residual Connection + Layer Normalization** 적용
+
+---
+
+## 7. BERT 원리 이해
+
+- Transformer **Encoder만 사용**한 모델
+- 문장을 **양방향(bidirectional)**으로 이해
+
+### 사전학습 방법
+
+#### 1. MLM (Masked Language Model)
+
+\`\`\`
+입력: "I [MASK] NLP"  /  정답: "love"
+→ 왼쪽("I")과 오른쪽("NLP") 문맥을 모두 활용하여 "love"를 맞춤
+\`\`\`
+
+#### 2. NSP (Next Sentence Prediction)
+
+두 문장이 실제로 이어지는지 판단 (이진 분류)
+
+### 파인튜닝
+
+| 작업 | 입력 | 출력 |
+|------|------|------|
+| 감정 분석 | 문장 | 긍정/부정 |
+| 개체명 인식 (NER) | 문장 | 각 토큰의 태그 |
+| 질의응답 (QA) | 질문 + 지문 | 답변 위치 |
+
+### 사전학습-파인튜닝 패러다임
+
+\`\`\`
+대규모 비라벨 데이터로 사전학습 (비용 큼, 한 번만)
+        ↓
+소규모 라벨 데이터로 파인튜닝 (작업별로 쉽고 빠르게)
+\`\`\`
+
+---
+
+## 차시 연결 요약
+
+> **원핫** → **워드 임베딩** → **RNN** → **LSTM** → **Seq2Seq+Attention** → **Transformer** → **BERT**
+>
+> Transformer Encoder만 → **BERT** (양방향 이해)
+> Transformer Decoder만 → **GPT** (텍스트 생성)
+> Encoder + Decoder → **번역 모델** (T5, BART)`,
+
+`# 4차시 - Decoder 모델, 디코딩 알고리즘, LLM 평가, 선호 학습
+
+> 3차시에서 Transformer의 Encoder(BERT)를 배웠다면, 4차시는 **Decoder 쪽**을 다룬다. GPT 같은 Decoder 모델이 어떻게 텍스트를 생성하는지, 생성 시 어떤 디코딩 전략을 쓰는지, LLM을 어떻게 평가하고 사람의 선호에 맞게 정렬하는지를 학습한다.
+
+## 1. Decoder 모델 (GPT 계열)
+
+### Encoder vs Decoder 모델
+
+| 모델 | 구조 | 방향 | 주요 작업 | 대표 |
+|------|------|------|----------|------|
+| **Encoder 모델** | Transformer Encoder만 | 양방향 | 이해/분류 | BERT |
+| **Decoder 모델** | Transformer Decoder만 | 단방향 (왼→오) | 텍스트 **생성** | GPT, LLaMA |
+| **Encoder-Decoder** | 둘 다 사용 | 양방향→단방향 | 번역, 요약 | T5, BART |
+
+### 자기회귀적(Autoregressive) 생성
+
+\`\`\`
+입력:  "오늘 날씨가"
+1단계: "오늘 날씨가" → 모델 → "좋다"
+2단계: "오늘 날씨가 좋다" → 모델 → "고"
+3단계: "오늘 날씨가 좋다고" → 모델 → "합니다"
+4단계: → [종료]
+\`\`\`
+
+### GPT 시리즈의 발전
+
+| 모델 | 파라미터 | 핵심 기여 | 학습 방식 |
+|------|---------|----------|----------|
+| **GPT-1** (2018) | 1.17억 | Decoder 사전학습 + 파인튜닝 패러다임 제시 | 사전학습 → **작업별 파인튜닝** |
+| **GPT-2** (2019) | 15억 | 파인튜닝 없이도 다양한 작업 수행 가능성 제시 | 사전학습만으로 zero-shot 시도 |
+| **GPT-3** (2020) | 1,750억 | **In-Context Learning** 능력 입증 | few-shot 프롬프트로 작업 수행 |
+
+### BERT vs GPT 비교
+
+| | BERT | GPT |
+|--|------|-----|
+| 구조 | Encoder | Decoder |
+| 방향 | 양방향 | 단방향 (왼→오) |
+| 학습 목표 | 마스크된 단어 예측 (MLM) | 다음 단어 예측 |
+| 강점 | 이해/분류 | 생성 |
+| 사용법 | 파인튜닝 | 프롬프트 (In-Context Learning) |
+
+---
+
+## 2. In-Context Learning (ICL)
+
+### 패러다임의 전환
+
+\`\`\`
+BERT 시대:  사전학습 → 파인튜닝 (작업별 라벨 데이터 필요)
+GPT 시대:   사전학습 → 프롬프트만으로 수행 (파인튜닝 불필요!)
+\`\`\`
+
+### 세 가지 방식
+
+#### Zero-shot
+예시 없이 **지시만** 제공. 모델의 사전학습 지식에만 의존.
+
+#### Few-shot
+
+\`\`\`
+프롬프트:
+"문장: '최고의 영화!' → 감정: 긍정
+ 문장: '시간 낭비였다' → 감정: 부정
+ 문장: '이 영화 정말 재미있다' → 감정: "
+출력: "긍정"
+\`\`\`
+
+### Chain of Thought (CoT) Prompting
+
+ICL의 확장 기법. **풀이 과정(사고 과정)**을 함께 보여줘서 모델의 추론 능력을 끌어내는 방법.
+
+\`\`\`
+[일반 Few-shot]
+Q: 식당에 23명. 11명이 떠나고 6명이 왔다. 몇 명?
+A: 18
+
+[Chain of Thought]
+Q: 식당에 23명. 11명이 떠나고 6명이 왔다. 몇 명?
+A: 처음 23명. 11명 떠나면 23-11=12명. 6명 오면 12+6=18명. 답은 18명.
+\`\`\`
+
+#### Zero-shot CoT
+
+예시 없이 **"Let's think step by step"** 한 마디만 추가해도 추론 성능 향상
+
+| 방식 | 프롬프트에 포함 | 강점 |
+|------|--------------|------|
+| Zero-shot | 지시만 | 간단하지만 성능 제한 |
+| Few-shot | 예시 (입력→출력) | 패턴 학습 |
+| **CoT** | 예시 + **풀이 과정** | 복잡한 추론 가능 |
+| **Zero-shot CoT** | "단계별로 생각하자" | 예시 없이도 추론 향상 |
+
+### ICL vs 파인튜닝
+
+| | In-Context Learning | 파인튜닝 |
+|--|---------------------|---------|
+| 파라미터 변경 | X | O |
+| 필요한 데이터 | 프롬프트 몇 개 | 수백~수만 개 라벨 데이터 |
+| 장점 | 빠르고 유연 | 높은 정확도 |
+| 단점 | 프롬프트 길이 제한 | 시간/비용, 작업마다 별도 모델 |
+
+---
+
+## 3. 디코딩 알고리즘
+
+### Greedy Decoding
+
+매 시점마다 **확률이 가장 높은 토큰 1개**만 선택. 빠르지만 전체적으로 비최적.
+
+### Beam Search
+
+\`\`\`
+k=2 예시:
+1단계: "나는"(0.6), "내가"(0.4) → 2개 유지
+2단계:
+  "나는 밥을" (0.6×0.7=0.42)
+  "내가 너를" (0.4×0.6=0.24) → 상위 2개 유지
+\`\`\`
+
+### Temperature Sampling
+
+\`\`\`
+P(wᵢ) = exp(zᵢ / T) / Σ exp(zⱼ / T)
+\`\`\`
+
+| T 값 | 효과 |
+|------|------|
+| **T → 0** | ≈ Greedy (확실한 답만) |
+| **T < 1** | 보수적 |
+| **T = 1** | 원래 확률 분포 |
+| **T > 1** | 창의적, 다양 |
+
+### Top-k Sampling
+
+확률 상위 **k개 토큰**만 후보로 남기고 나머지 제외
+
+### Top-p (Nucleus) Sampling
+
+누적 확률이 **p를 넘는 지점**까지의 토큰만 후보. 후보 수가 상황에 따라 유동적.
+
+### 디코딩 전략 비교
+
+| 전략 | 다양성 | 결정적? | 주 사용처 |
+|------|--------|---------|----------|
+| **Greedy** | 낮음 | 결정적 | 빠른 추론 |
+| **Beam Search** | 낮음 | 결정적 | 번역, 요약 |
+| **Temperature** | 조절 가능 | 확률적 | 대화, 창작 |
+| **Top-k** | 중간 | 확률적 | 범용 |
+| **Top-p** | 높음 (유동적) | 확률적 | 대화, 창작 |
+
+> 실전에서는 **Temperature + Top-p**를 조합하여 사용하는 경우가 많다.
+
+---
+
+## 4. 거대 언어 모델 (LLM)의 평가
+
+### 자동 평가 지표
+
+| 지표 | 설명 | 평가 대상 |
+|------|------|----------|
+| **Perplexity** | 다음 토큰 예측 혼란도 | 언어 모델 자체 품질 |
+| **BLEU** | N-gram 정밀도 겹침 | 번역 |
+| **ROUGE** | N-gram 재현율 겹침 | 요약 |
+| **MMLU** | 57개 과목 객관식 문제 | 지식/추론 능력 |
+| **HumanEval** | 코딩 문제 테스트 통과율 | 코드 생성 |
+| **TruthfulQA** | 사실성 검증 질문 | 환각(hallucination) 정도 |
+
+### LLM-as-a-Judge
+
+강력한 LLM(예: GPT-4)을 **평가자로 사용**. 사람 평가의 비용 문제를 완화.
+
+---
+
+## 5. 선호 학습 (Preference Learning)
+
+### LLM 학습의 3단계
+
+\`\`\`
+1단계: 사전학습 (Pre-training)
+  대규모 텍스트로 "다음 토큰 예측" 학습
+  → 언어 지식, 사실, 추론 능력 습득
+  → 아직 지시를 따르지 못함
+
+2단계: SFT (Supervised Fine-Tuning)
+  (지시, 양질의 응답) 쌍으로 지도학습
+  → 지시를 따르는 법을 배움
+
+3단계: 선호 학습 (Alignment)
+  사람의 선호에 맞게 미세 조정
+  → RLHF 또는 DPO
+\`\`\`
+
+### RLHF (Reinforcement Learning from Human Feedback)
+
+| 단계 | 내용 |
+|------|------|
+| **1. SFT** | 양질의 데이터로 지도학습 |
+| **2. 보상 모델 (RM)** | 같은 질문에 대한 두 응답 중 어느 것이 나은지 사람이 판단 → 점수화 |
+| **3. RL 최적화 (PPO)** | 보상 점수를 최대화하도록 강화학습 |
+
+- **KL 페널티**: 보상만 최대화하면 reward hacking 발생 → 원래 모델과 비슷하게 유지하는 제약
+
+### DPO (Direct Preference Optimization)
+
+| | RLHF | DPO |
+|--|------|-----|
+| 보상 모델 | 별도로 학습 필요 | **불필요** |
+| 강화학습 (PPO) | 필요 (학습 불안정 가능) | **불필요** |
+| 구현 복잡도 | 높음 | 낮음 |
+| 학습 안정성 | PPO 하이퍼파라미터에 민감 | 안정적 |
+
+\`\`\`
+DPO 핵심:
+"선호 응답(A)의 확률을 높이고, 비선호 응답(B)의 확률을 낮춘다"
+별도 보상 모델 없이 직접 LM을 업데이트
+\`\`\`
+
+---
+
+## 차시 연결 요약
+
+> - **Decoder 모델**(GPT): Transformer Decoder만 사용, 자기회귀적 생성
+> - **GPT 발전**: GPT-1(파인튜닝) → GPT-2(zero-shot) → GPT-3(ICL, 창발적 능력)
+> - **In-Context Learning + CoT**: 파인튜닝 없이 프롬프트만으로 작업 수행
+> - **디코딩 알고리즘**: Greedy → Beam → Sampling (Temperature/Top-k/Top-p)
+> - **선호 학습**: 사전학습 → SFT → RLHF/DPO로 이어지는 LLM 완성 파이프라인`,
+
+`# 5차시 - CNN (Convolutional Neural Network)
+
+> 1~4차시가 텍스트(순차 데이터)를 다뤘다면, 5차시는 **이미지(공간 데이터)**를 다루는 신경망을 배운다.
+
+## 1. CNN 원리 이해
+
+### 왜 일반 신경망(MLP)으로 이미지를 처리하면 안 되는가?
+
+\`\`\`
+컬러(3채널) 224×224 이미지를 MLP에 넣으면:
+입력: 224 × 224 × 3 = 150,528개
+은닉층 1000개: 150,528 × 1,000 = 1.5억 개의 가중치 → 파라미터 폭발!
+\`\`\`
+
+| 문제 | MLP | CNN |
+|------|-----|-----|
+| **공간 정보 소실** | 2D 이미지를 1D로 펼침 | 2D 구조 그대로 처리 |
+| **파라미터 폭발** | 모든 픽셀에 개별 가중치 | 작은 필터를 공유 |
+| **이동 불변성 없음** | 고양이 위치마다 다른 가중치 필요 | 같은 필터로 전체를 훑음 |
+
+### CNN의 3가지 핵심 아이디어
+
+#### 1. 지역적 연결 (Local Connectivity)
+각 뉴런이 **작은 영역(receptive field)**만 봄
+
+#### 2. 가중치 공유 (Weight Sharing)
+같은 필터(커널)를 이미지 **전체에 걸쳐 재사용** → 파라미터 감소 + **이동 불변성**
+
+#### 3. 계층적 특징 학습
+
+\`\`\`
+Layer 1: 엣지, 선, 색상 변화 (저수준 특징)
+    ↓
+Layer 2: 모서리, 텍스처, 간단한 패턴
+    ↓
+Layer 3: 눈, 코, 바퀴 등 물체 부분
+    ↓
+Layer 4+: 얼굴, 자동차 등 복잡한 객체 (고수준 특징)
+\`\`\`
+
+### CNN 전체 구조
+
+\`\`\`
+입력 이미지
+  ↓ [Conv + ReLU] → 특징 맵 생성
+  ↓ [Pooling] → 크기 축소
+  ↓ ... (반복)
+  ↓ [Flatten] → 2D → 1D 벡터
+  ↓ [FC] → 최종 분류/예측
+\`\`\`
+
+---
+
+## 2. CNN 연산 (합성곱 연산)
+
+### 출력 크기 계산 공식 ★★★
+
+\`\`\`
+출력 크기 = (W - F + 2P) / S + 1
+
+W = 입력 크기   F = 필터 크기
+P = 패딩       S = 스트라이드
+\`\`\`
+
+### 계산 예시
+
+\`\`\`
+예1) 입력 6×6, 필터 3×3, P=0, S=1 → (6-3+0)/1+1 = 4×4
+예2) 입력 32×32, 필터 5×5, P=2, S=1 → (32-5+4)/1+1 = 32×32 (Same!)
+예3) 입력 224×224, 필터 7×7, P=3, S=2 → (224-7+6)/2+1 = 112×112
+\`\`\`
+
+### 다채널 합성곱
+
+\`\`\`
+입력: H × W × C_in
+필터 N개: F × F × C_in × N
+출력: H' × W' × N
+파라미터 수: F × F × C_in × N + N (bias)
+\`\`\`
+
+---
+
+## 3. 패딩 (Padding)
+
+| 종류 | 설명 | 출력 크기 |
+|------|------|----------|
+| **Valid (패딩 없음)** | 패딩 X → 출력 줄어듦 | < 입력 |
+| **Same (제로 패딩)** | 0을 테두리에 추가 → 출력 = 입력 | = 입력 |
+
+### Same 패딩 공식
+
+\`\`\`
+3×3 필터 → P = 1
+5×5 필터 → P = 2
+7×7 필터 → P = 3
+일반화: P = (F - 1) / 2
+\`\`\`
+
+---
+
+## 4. 스트라이드 합성곱 (Stride Convolution)
+
+| 스트라이드 | 출력 크기 | 효과 |
+|-----------|----------|------|
+| **S = 1** | 크게 줄지 않음 | 세밀한 특징 보존 |
+| **S = 2** | 약 절반 | 다운샘플링 효과 (Pooling 대체 가능) |
+
+---
+
+## 5. Pooling (풀링)
+
+### Pooling의 3가지 목적
+
+| 목적 | 설명 |
+|------|------|
+| **계산량 감소** | 특징 맵 크기를 줄여 이후 층의 연산 부담 줄임 |
+| **과적합 방지** | 공간 크기가 줄면 파라미터도 줄어 과적합 완화 |
+| **이동 불변성 강화** | 특징의 **정확한 위치**보다 **존재 여부**에 집중 |
+
+### Max vs Average Pooling
+
+| | Max Pooling | Average Pooling |
+|--|-------------|-----------------|
+| **선택 기준** | 영역 내 최댓값 | 영역 내 평균값 |
+| **보존하는 것** | 가장 두드러진 특징 | 전반적 특징 수준 |
+| **주 사용** | 중간 층 (대부분) | 마지막 층 (GAP) |
+
+---
+
+## 6. 대표적 CNN 아키텍처
+
+| 모델 | 연도 | 특징 | 의의 |
+|------|------|------|------|
+| **LeNet-5** | 1998 | Conv-Pool-Conv-Pool-FC | CNN의 시초 |
+| **AlexNet** | 2012 | 더 깊은 구조 + ReLU + Dropout | 딥러닝 부흥의 시작점 |
+| **VGGNet** | 2014 | 3×3 필터만 사용, 매우 깊게 | "깊을수록 좋다" |
+| **ResNet** | 2015 | Skip Connection (잔차 학습) | 100+층 가능, 기울기 소실 해결 |
+| **MobileNet** | 2017 | Depthwise Separable Convolution | 경량화 모델 |
+
+### ResNet의 Skip Connection
+
+\`\`\`
+일반 CNN:  x → [Conv-ReLU-Conv] → 출력
+ResNet:    x → [Conv-ReLU-Conv] + x → 출력  (입력을 직접 더함)
+\`\`\`
+
+기울기가 skip connection을 통해 **직접 전달** → 기울기 소실 방지
+3차시 LSTM의 Cell State와 **같은 원리** (덧셈 경로로 기울기 보존)
+
+### MobileNet: Depthwise Separable Convolution
+
+\`\`\`
+일반 합성곱 (3×3, 64ch→128ch): 파라미터 3×3×64×128 = 73,728개
+
+Depthwise Separable:
+  Depthwise:  3×3×64 = 576개
+  Pointwise:  1×1×64×128 = 8,192개
+  합계: 8,768개 (약 8.4배 절감!)
+\`\`\`
+
+---
+
+## 7. CNN vs FCN (Fully Connected Network)
+
+| | FCN (MLP) | CNN |
+|--|-----------|-----|
+| **연결** | 모든 뉴런이 전부 연결 | 지역적 연결 |
+| **가중치** | 각 연결마다 별도 가중치 | 가중치 공유 |
+| **입력 구조** | 1D 벡터 (공간 정보 소실) | 2D/3D 그대로 |
+| **파라미터 수** | 매우 많음 | 매우 적음 |
+| **이동 불변성** | 없음 | 있음 |
+
+---
+
+## 8. 수용 영역 (Receptive Field)
+
+출력의 한 뉴런이 **입력 이미지에서 영향을 받는 영역의 크기**
+
+\`\`\`
+Layer 1 (3×3): 입력의 3×3 영역을 봄
+Layer 2 (3×3): 입력의 5×5 영역을 봄
+Layer 3 (3×3): 입력의 7×7 영역을 봄
+
+→ 3×3 필터 3개: 파라미터 27개  vs  7×7 필터 1개: 파라미터 49개
+→ 3×3을 깊게 쌓는 게 더 효율적!
+\`\`\`
+
+> VGGNet이 3×3 필터만 깊게 쌓는 이유: 수용 영역은 넓히면서 파라미터는 줄이는 전략
+
+---
+
+## 9. CNN의 한계
+
+| 한계 | 설명 |
+|------|------|
+| **순서 무시** | CNN은 공간적 지역 패턴만 봄. 전역 구조를 고려하지 못함 |
+| **긴 거리 의존성 부족** | 수용 영역이 제한적. 멀리 떨어진 픽셀 간 관계 학습 어려움 |
+| **픽셀 단위 복원 한계** | Pooling으로 공간 정보 손실 |
+
+> 이러한 한계 때문에 **이미지에서도 Attention/Transformer**를 쓰는 흐름이 등장 → ViT
+
+---
+
+## 10. 이미지에서의 어텐션 메커니즘
+
+### 이미지에서의 Self-Attention
+
+\`\`\`
+CNN:           각 뉴런이 3×3 영역만 봄 (지역적)
+Self-Attention: 각 픽셀이 모든 픽셀과 유사도 계산 (전역적)
+\`\`\`
+
+### 교차 어텐션 (Cross-Attention)
+
+**두 가지 다른 모달리티** 사이의 Attention
+
+\`\`\`
+Self-Attention:  Q, K, V 모두 같은 소스
+Cross-Attention: Q는 한 소스, K와 V는 다른 소스
+
+이미지-텍스트 Cross-Attention 예:
+  Q: 이미지 패치들 → K, V: 텍스트 토큰들
+  → 이미지의 각 위치가 관련 텍스트 정보를 참조
+\`\`\`
+
+| Self-Attention | Cross-Attention |
+|---------------|----------------|
+| Q, K, V 같은 소스 | Q ≠ K, V (다른 소스) |
+| ViT에서 사용 | CLIP, Diffusion 모델에서 사용 |
+
+---
+
+## 11. ViT (Vision Transformer)와 위치 인코딩
+
+### ViT 구조
+
+\`\`\`
+입력 이미지 (224×224)
+  ↓ 패치 분할: 16×16 크기 패치 196개
+  ↓ 각 패치를 벡터로 임베딩 (선형 투영)
+  ↓ [CLS] 토큰 + 위치 인코딩 추가
+  ↓ Transformer Encoder (Self-Attention + FFN) × L층
+  ↓ [CLS] 토큰 출력 → 분류 헤드 → 예측
+\`\`\`
+
+### ViT의 위치 인코딩
+
+| 방식 | 설명 |
+|------|------|
+| **학습 가능한 위치 인코딩** | 각 위치에 학습 가능한 벡터 할당. ViT 기본 방식 |
+| **사인파 인코딩** | sin/cos 함수로 위치 벡터 생성. Transformer 원본 방식 |
+
+### ViT vs ResNet (CNN)
+
+| | ViT | ResNet (CNN) |
+|--|-----|-------------|
+| **기본 연산** | Self-Attention | 합성곱 |
+| **수용 영역** | 처음부터 **전체 이미지** | 층을 쌓아야 점점 확대 |
+| **귀납적 편향** | 약함 | 강함 (지역성, 이동불변성) |
+| **소규모 데이터** | 성능 낮음 | **성능 좋음** |
+| **대규모 데이터** | **CNN 능가** | ViT보다 낮음 |
+
+### ViT 학습 시 유의점
+
+1. **대규모 데이터 필수**: 귀납적 편향이 약해서 작은 데이터에서 과적합 위험
+2. **사전학습 중요**: ImageNet-21K 등 대규모 데이터로 사전학습 후 파인튜닝 권장
+3. **해상도 변경 시**: 위치 인코딩 보간(interpolation) 필요
+4. **패치 크기 트레이드오프**: 작을수록 세밀 but 토큰 수↑ → 계산 비용↑
+
+---
+
+## 12. 핵심 공식 총정리
+
+| 항목 | 공식 |
+|------|------|
+| **출력 크기** | (W - F + 2P) / S + 1 |
+| **Same 패딩** | P = (F - 1) / 2 |
+| **Conv 파라미터 수** | F × F × C_in × C_out + C_out |
+| **FC 파라미터 수** | 입력 뉴런 × 출력 뉴런 + 출력 뉴런 |
+
+---
+
+## 차시 연결 요약
+
+> - **2차시 신경망**: CNN의 FC 층은 MLP와 동일. Conv는 "가중치 공유하는 MLP"
+> - **3차시 LSTM**: ResNet의 Skip Connection과 LSTM의 Cell State는 같은 원리 (기울기 소실 해결)
+> - **6차시 VLM**: CNN(이미지 인코더) + Transformer(텍스트 인코더) = CLIP, VLM`,
+
+`# 6차시 - Vision-Language Models, 이미지 생성, AI 파운데이션 모델
+
+> 6차시는 지금까지 배운 모든 것을 **통합**하는 차시다. 이미지+텍스트 멀티모달 모델, 이미지 생성 모델, 딥러닝 학습 전략까지 다룬다.
+
+## 1. AI 파운데이션 모델
+
+### 기존 AI vs 파운데이션 모델
+
+| | 기존 AI | 파운데이션 모델 |
+|--|--------|--------------|
+| **학습 방식** | 작업마다 모델을 새로 학습 | 한 번 대규모 사전학습 → 여러 작업에 활용 |
+| **데이터** | 각 작업별 소규모 라벨 데이터 | 인터넷 스케일 비라벨 데이터 |
+| **적용** | 하나의 작업에만 특화 | 파인튜닝/프롬프트로 다양한 작업 수행 |
+
+### 핵심 특징 3가지
+
+#### 1. 규모의 법칙 (Scaling Law)
+모델 크기, 데이터 양, 컴퓨팅이 커질수록 **예측 가능하게** 성능 향상
+
+#### 2. 창발적 능력 (Emergent Ability)
+작은 모델에는 없다가 일정 규모를 넘으면 **갑자기 나타나는** 능력. 4차시의 **ICL**이 대표적 창발적 능력.
+
+#### 3. 전이 학습 (Transfer Learning)
+사전학습에서 배운 지식을 **새로운 작업에 전이**. 소량의 데이터로도 높은 성능.
+
+### ViT (Vision Transformer) 개요
+
+\`\`\`
+이미지를 패치로 분할 → 각 패치를 토큰처럼 임베딩 → Transformer Encoder에 입력
+224×224 이미지 → 16×16 패치 196개 → 196개의 토큰 시퀀스
+\`\`\`
+
+| CNN | ViT |
+|-----|-----|
+| 지역적 연결 | 전역적 참조 (모든 패치를 동시에) |
+| 귀납적 편향 강함 | 귀납적 편향 약함 → 대규모 데이터 필요 |
+| 적은 데이터에서도 잘 작동 | 대규모 데이터에서 CNN을 능가 |
+
+---
+
+## 2. Vision-Language Models (VLM)
+
+### CLIP (Contrastive Language-Image Pre-training)
+
+OpenAI가 2021년 제안. VLM의 대표 모델.
+
+\`\`\`
+이미지 → [Image Encoder (ViT/ResNet)] → 이미지 벡터
+                                              ↕ 유사도 계산
+텍스트 → [Text Encoder (Transformer)]  → 텍스트 벡터
+\`\`\`
+
+#### 학습 방법: 대조 학습 (Contrastive Learning)
+
+배치 내 이미지-텍스트 쌍에서, **맞는 쌍은 가깝게, 틀린 쌍은 멀게** 학습
+
+\`\`\`
+유사도 행렬 (학습 목표):
+         텍스트1  텍스트2  텍스트3
+이미지1    ✓높게    ✗낮게    ✗낮게
+이미지2    ✗낮게    ✓높게    ✗낮게
+이미지3    ✗낮게    ✗낮게    ✓높게
+
+→ 대각선(맞는 쌍) 유사도 최대화, 나머지(틀린 쌍) 최소화
+\`\`\`
+
+학습 데이터: 인터넷에서 수집한 4억 개의 (이미지, 캡션) 쌍. 별도 라벨링 불필요.
+
+#### CLIP의 활용: Zero-shot 분류
+
+\`\`\`
+1. 이미지 → Image Encoder → 이미지 벡터
+2. "a photo of a dog" → Text Encoder → 벡터A
+   "a photo of a cat" → Text Encoder → 벡터B
+3. 유사도 비교 → 가장 높은 유사도의 클래스 선택
+\`\`\`
+
+#### CLIP의 다른 활용
+
+| 활용 | 방법 |
+|------|------|
+| **이미지 검색** | 텍스트 쿼리로 가장 유사한 이미지를 검색 |
+| **이미지 캡셔닝** | 다른 모델과 결합하여 이미지 설명 생성 |
+| **이미지 생성 가이드** | Diffusion 모델에서 텍스트 조건으로 사용 |
+
+---
+
+## 3. SigLIP (Sigmoid Loss for Language-Image Pre-training)
+
+### CLIP의 한계: Softmax 대조 손실
+
+\`\`\`
+CLIP (Softmax): 배치 내 모든 쌍을 비교해야 함
+→ 배치 크기 32,768 필요 → 엄청난 GPU 메모리
+→ 작은 배치에서는 성능 저하
+\`\`\`
+
+### SigLIP의 개선: Sigmoid 손실
+
+각 (이미지, 텍스트) 쌍을 **독립적으로 이진 분류**
+
+\`\`\`
+SigLIP (Sigmoid):
+  - 맞는 쌍 → σ(유사도) = 1에 가깝게
+  - 틀린 쌍 → σ(유사도) = 0에 가깝게
+→ 각 쌍을 독립적으로 판단 (다른 쌍과 비교 불필요!)
+\`\`\`
+
+### CLIP vs SigLIP 비교
+
+| | CLIP (Softmax) | SigLIP (Sigmoid) |
+|--|----------------|-----------------|
+| **비교 방식** | 배치 내 전체 쌍 **상대적** 비교 | 각 쌍을 **독립적** 판단 |
+| **배치 크기 의존** | 큰 배치 필수 (32K) | 배치 크기에 덜 민감 |
+| **계산** | 정규화 필요 (expensive) | 이진 분류 (cheap) |
+| **직관** | "배치에서 가장 맞는 쌍은?" | "이 쌍이 맞나 틀리나?" |
+
+> SigLIP = "CLIP의 대조 학습을 Sigmoid 손실로 단순화·효율화한 모델" (Google 2023)
+
+---
+
+## 4. 이미지 생성 모델
+
+### GAN (Generative Adversarial Network, 2014)
+
+\`\`\`
+Generator (생성자) → 가짜 이미지 → Discriminator (판별자) → 진짜/가짜?
+랜덤 노이즈                           ↑ 진짜 이미지
+\`\`\`
+
+| 장점 | 단점 |
+|------|------|
+| 고화질 이미지 생성 | **모드 붕괴**: 다양성 부족 |
+| 생성 속도 빠름 | **학습 불안정** |
+
+### VAE (Variational Autoencoder, 2013)
+
+\`\`\`
+입력 → [Encoder] → 잠재 분포 (μ, σ) → z → [Decoder] → 복원 이미지
+생성: 잠재 공간에서 z 랜덤 샘플링 → Decoder → 새 이미지
+\`\`\`
+
+| 장점 | 단점 |
+|------|------|
+| 학습이 안정적 | 생성 이미지가 흐릿할 수 있음 |
+| 잠재 공간이 연속적 → 보간 가능 | GAN보다 선명도 낮음 |
+
+### Diffusion Model (2020~) — 현재 주류
+
+\`\`\`
+Forward Process (훈련 시):
+원본 이미지 → +노이즈 → +노이즈 → ... → 순수 노이즈
+
+Reverse Process (생성 시 - 이것을 학습):
+순수 노이즈 → -노이즈 → -노이즈 → ... → 깨끗한 이미지
+\`\`\`
+
+| 단계 | 설명 |
+|------|------|
+| **Forward process** | 원본에 단계적으로 가우시안 노이즈 추가 |
+| **학습 목표** | 각 단계에서 **추가된 노이즈를 예측** |
+| **Reverse process** | 학습된 네트워크로 노이즈를 단계적 제거 → 이미지 복원 |
+
+#### Stable Diffusion 구조
+
+\`\`\`
+텍스트 → [CLIP Text Encoder] → 텍스트 임베딩
+                                      ↓
+랜덤 노이즈 → [U-Net + 텍스트 조건] → 잠재 벡터 → [VAE Decoder] → 이미지
+\`\`\`
+
+### 생성 모델 비교
+
+| | GAN | VAE | Diffusion |
+|--|-----|-----|-----------|
+| **품질** | 높음 (선명) | 중간 (흐릿) | **매우 높음** |
+| **다양성** | 낮을 수 있음 | 높음 | **높음** |
+| **학습 안정성** | 불안정 | 안정적 | **안정적** |
+| **생성 속도** | **빠름** | 빠름 | 느림 (수십~수백 스텝) |
+| **대표 서비스** | StyleGAN | — | DALL-E, Midjourney, SD |
+
+---
+
+## 5. 허깅페이스 (Hugging Face)
+
+AI/ML 모델, 데이터셋, 도구를 공유하는 **오픈소스 플랫폼 및 라이브러리 생태계**. "AI의 GitHub"
+
+| 구성 요소 | 설명 |
+|----------|------|
+| **Transformers** | 사전학습 모델을 쉽게 로드/사용하는 Python 라이브러리 |
+| **Model Hub** | 100만+ 사전학습 모델 저장소 |
+| **Datasets** | 15만+ 공개 데이터셋 허브 |
+| **Spaces** | 모델 데모를 웹으로 배포 (Gradio, Streamlit) |
+| **Diffusers** | Diffusion 모델 전용 라이브러리 |
+
+---
+
+## 6. 딥러닝 학습 전략
+
+> 좋은 모델 구조 ≠ 우수한 성능. 학습 **전략**(초기화, 정규화, 학습률 조정 등)이 성능을 크게 좌우한다.
+
+### 활성화 함수
+
+| 함수 | 수식 | 특징 |
+|------|------|------|
+| **Sigmoid** | 1/(1+e⁻ˣ) | 기울기 소실. 출력 중심이 0이 아님 |
+| **ReLU** | max(0, x) | 빠르고 효과적. **죽은 뉴런(Dead Neuron)** 문제 |
+| **Leaky ReLU** | x>0이면 x, x≤0이면 αx (α≈0.01) | ReLU의 죽은 뉴런 문제 해결. 음수에도 작은 기울기 |
+| **GELU** | x·Φ(x) | Transformer에서 주로 사용. 부드러운 ReLU |
+
+\`\`\`
+ReLU Dead Neuron: 입력 음수 → 출력 0, 기울기 0 → 뉴런 영원히 업데이트 안 됨
+Leaky ReLU 해결: 입력 음수 → 출력 0.01x, 기울기 0.01 → 작지만 살아있음
+\`\`\`
+
+### 데이터 전처리
+
+| 전처리 | 설명 | 이유 |
+|--------|------|------|
+| **데이터 형식 통일** | float32 등으로 변환 | 모델이 일관되게 처리 |
+| **이미지 크기 통일** | 224×224로 리사이즈 | CNN/ViT는 고정 크기 입력 필요 |
+| **정규화 (Normalization)** | 픽셀값을 0~1 또는 평균0/분산1로 스케일링 | 학습 안정성, 수렴 속도 향상 |
+| **데이터 증강 (Augmentation)** | 회전, 반전, 크롭, 색상 변환 | 과적합 방지 |
+
+\`\`\`
+ImageNet 표준화 (가장 흔함):
+  mean = [0.485, 0.456, 0.406]  (R, G, B)
+  std  = [0.229, 0.224, 0.225]
+\`\`\`
+
+### 가중치 초기화 (Weight Initialization)
+
+| 방법 | 설명 | 적합한 활성함수 |
+|------|------|----------------|
+| **모두 0으로** | 모든 가중치 = 0 | **절대 안 됨!** 대칭 문제 → 학습 불가 |
+| **랜덤 초기화** | 작은 랜덤 값 | 깊은 네트워크에서 기울기 소실/폭발 가능 |
+| **Xavier 초기화** | 분산 = 2/(n_in + n_out) | **Sigmoid, Tanh**에 적합 |
+| **He 초기화** | 분산 = 2/n_in | **ReLU**에 적합. 음수를 0으로 만드는 것을 보정 |
+
+\`\`\`
+Xavier: W ~ N(0, 2/(n_in + n_out))  → Sigmoid/Tanh의 선형 구간에서 기울기 잘 전달
+He:     W ~ N(0, 2/n_in)            → ReLU가 분산을 절반으로 줄이는 것을 보정
+ResNet은 He 초기화 사용 (ReLU 기반)
+\`\`\`
+
+### 모델 정규화 (Regularization)
+
+#### L1 vs L2 vs Elastic Net
+
+| 방법 | 페널티 항 | 효과 |
+|------|----------|------|
+| **L1 정규화** | λ × Σ\|wᵢ\| | 일부 가중치를 **정확히 0으로** → 희소 모델 (특성 선택) |
+| **L2 정규화** | λ × Σwᵢ² | 가중치를 **작게** → 부드러운 모델 (가장 흔함) |
+| **Elastic Net** | λ₁×Σ\|wᵢ\| + λ₂×Σwᵢ² | L1 + L2 결합. 둘의 장점을 동시에 |
+
+#### 드롭아웃 (Dropout)
+
+학습 중 각 뉴런을 **확률 p로 랜덤하게 비활성화**
+
+\`\`\`
+학습 시: [O] [X] [O] [O] [X] [O]  (X = 드롭아웃된 뉴런, 매 배치마다 다름)
+추론 시: [O] [O] [O] [O] [O] [O]  (모든 뉴런 활성, 가중치에 (1-p) 곱)
+\`\`\`
+
+**앙상블 효과**: 매번 다른 서브네트워크를 학습하는 것과 유사
+
+### 학습률 스케줄링
+
+| 스케줄 | 동작 | 특징 |
+|--------|------|------|
+| **계단식 (Step Decay)** | 일정 에폭마다 학습률을 비율로 줄임 | 간단, 전통적 |
+| **코사인 (Cosine Annealing)** | 코사인 함수 형태로 부드럽게 감소 | Transformer에서 선호 |
+| **선형 (Linear Decay)** | 선형으로 일정하게 감소 | 간단, 예측 가능 |
+| **워밍업 (Warmup)** | 처음에 0에서 천천히 올린 후 감소 | **Transformer 필수**. 초기 불안정 방지 |
+
+\`\`\`
+워밍업 + 코사인 (Transformer 표준):
+학습률 │    /‾‾‾‾‾‾\
+       │   /        ‾‾‾‾‾\_____
+       │  /                     ‾‾‾
+       └─────────────────────────→ 에폭
+         워밍업   코사인 감소
+\`\`\`
+
+### 파라미터 vs 하이퍼파라미터
+
+| | 파라미터 (Parameter) | 하이퍼파라미터 (Hyperparameter) |
+|--|---------------------|------------------------------|
+| **정의** | 모델이 학습하는 값 | 사람이 사전에 설정하는 값 |
+| **결정 방법** | 경사하강법으로 자동 학습 | 사람이 직접 설정 / 탐색 |
+| **예시** | 가중치(W), 편향(b), 필터 값 | 학습률, 배치 크기, 층 수, 드롭아웃 비율 |
+| **개수** | 수백만~수조 개 | 수십 개 |
+
+---
+
+## 7. 전체 커리큘럼 연결 맵
+
+### 핵심 관통 개념
+
+| 개념 | 등장 차시 |
+|------|----------|
+| **손실함수 + 경사하강법** | 2차시에서 시작 → 모든 모델 학습의 기반 |
+| **기울기 소실 → 해결** | RNN→LSTM(3차시), CNN→ResNet(5차시) |
+| **Attention** | Seq2Seq(3차시) → Transformer → BERT/GPT → CLIP(6차시) |
+| **사전학습 → 파인튜닝/프롬프트** | BERT(3차시) → GPT/ICL(4차시) → CLIP zero-shot(6차시) |
+| **대조 학습** | CLIP(6차시) → SigLIP(6차시) |
+
+---
+
+## 차시 연결 요약
+
+> 6차시는 전체 과정의 **집대성**이다:
+>
+> - **파운데이션 모델**: 1~5차시에서 배운 모든 모델의 공통 패러다임
+> - **CLIP/SigLIP**: 3차시 Transformer(텍스트) + 5차시 CNN/ViT(이미지) = 멀티모달
+> - **이미지 생성**: 신경망 학습 + 잠재 공간 + 조건부 생성의 융합
+> - **딥러닝 학습 전략**: Leaky ReLU, 데이터 전처리, Xavier/He 초기화, L1/L2/Dropout, 학습률 스케줄링
+>
+> AI 기초 이론의 큰 그림: **데이터(1차시) → 모델(2~5차시) → 응용과 생태계(6차시)**`
+];
+
+const SECTIONS=[
+  {id:1,title:"AI & 기계학습 기초",short:"AI/ML/DL, R², 혼동행렬, 클러스터링"},
+  {id:2,title:"회귀, 분류, 신경망",short:"RSS, 경사하강법, 로지스틱, 활성함수"},
+  {id:3,title:"자연어 처리 기본",short:"RNN, LSTM, Transformer, BERT, Attention"},
+  {id:4,title:"Decoder 모델, LLM, 선호 학습",short:"GPT, ICL, CoT, 디코딩, RLHF, DPO"},
+  {id:5,title:"CNN",short:"합성곱, Pooling, ViT, 어텐션, 수용영역"},
+  {id:6,title:"비전-언어 모델, 이미지 생성",short:"CLIP, SigLIP, Diffusion, 학습전략"}
+];
+
+let cur=0;
+const visited=new Set([0]);
+
+function buildNav(){
+  const nav=document.getElementById('sidebarNav');
+  const dots=document.getElementById('progressDots');
+  nav.innerHTML='';dots.innerHTML='';
+  SECTIONS.forEach((s,i)=>{
+    const el=document.createElement('div');
+    el.className='nav-item'+(i===cur?' active':'')+(visited.has(i)&&i!==cur?' visited':'');
+    el.onclick=()=>show(i);
+    el.innerHTML=`<div class="nav-badge">${s.id}</div><div class="nav-text"><div class="nav-title">${s.title}</div><div class="nav-short">${s.short}</div></div><div class="nav-dot"></div>`;
+    nav.appendChild(el);
+    const d=document.createElement('div');
+    d.className='pdot'+(i<cur?' done':i===cur?' current':'');
+    dots.appendChild(d);
+  });
+  document.getElementById('progressLabel').textContent=`${cur+1}/6`;
+}
+
+function renderSection(idx){
+  const c=document.getElementById('content');
+  let html=marked.parse(RAW[idx]);
+  html=html.replace(/<pre><code class="language-mermaid">([\s\S]*?)<\/code><\/pre>/g,
+    (_,code)=>`<div class="mermaid">${code}</div>`);
+  c.innerHTML=`<div class="section active">${html}</div>`;
+  c.scrollTop=0;
+  if(typeof mermaid!=='undefined'){
+    try{mermaid.run({nodes:c.querySelectorAll('.mermaid')});}catch(e){}
+  }
+}
+
+function updateTopbar(){
+  const s=SECTIONS[cur];
+  document.getElementById('topbar-title').textContent=s.title;
+  document.getElementById('topbar-subtitle').textContent=`${cur+1}차시 / 6`;
+}
+
+function updateBtns(){
+  document.getElementById('prevBtn').disabled=cur===0;
+  document.getElementById('nextBtn').disabled=cur===SECTIONS.length-1;
+}
+
+function show(idx){
+  visited.add(cur);cur=idx;visited.add(idx);
+  renderSection(idx);buildNav();updateTopbar();updateBtns();closeSidebar();
+}
+
+function navigate(d){
+  const n=cur+d;
+  if(n>=0&&n<SECTIONS.length)show(n);
+}
+
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');
+  const ov=document.getElementById('overlay');
+  sb.classList.toggle('open');
+  ov.style.display=sb.classList.contains('open')?'block':'none';
+}
+
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').style.display='none';
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight')navigate(1);
+  if(e.key==='ArrowLeft')navigate(-1);
+});
+
+mermaid.initialize({
+  startOnLoad:false,theme:'dark',
+  themeVariables:{
+    background:'#21262d',primaryColor:'#58a6ff',
+    primaryTextColor:'#e6edf3',primaryBorderColor:'#30363d',
+    lineColor:'#8b949e',secondaryColor:'#161b22',tertiaryColor:'#30363d'
+  }
+});
+
+marked.setOptions({breaks:true,gfm:true});
+buildNav();renderSection(0);updateTopbar();updateBtns();
+</script>
+</body>
+</html>
